@@ -37,5 +37,23 @@ class DiscoveryService {
     _sendBroadcast();
   }
 
+  void _onEvent(RawSocketEvent event) {
+    if (event != RawSocketEvent.read) return;
+    final datagram = _socket!.receive();
+    if (datagram == null) return;
+
+    try {
+      final json = jsonDecode(utf8.decode(datagram.data));
+      final ip = datagram.address.address;
+
+      if (json['name'] == myName) return; // ignore our own broadcast
+
+      final peer = Peer.fromJson(json, ip);
+      _peers[ip] = peer;
+      _peersController.add(_peers.values.toList());
+    } catch (_) {
+      // ignore malformed packets
+    }
+  }
 
 } 
