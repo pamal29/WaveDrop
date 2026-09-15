@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-void main(){
-  runApp(const WavedropApp());
+void main() {
+  runApp(const WavaShareApp());
 }
 
-class WavedropApp extends StatelessWidget {
-  const WavedropApp({super.key});
+class WavaShareApp extends StatelessWidget {
+  const WavaShareApp({super.key});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WavaShare',
       theme: ThemeData(
@@ -26,7 +26,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // number of tabs
+      length: 2, 
       child: Scaffold(
         appBar: AppBar(
           title: const Text('WavaShare'),
@@ -44,6 +44,28 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SendTab extends StatelessWidget {
+  const SendTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Send screen — pick a file to share'),
+    );
+  }
+}
+
+class ReceiveTab extends StatelessWidget {
+  const ReceiveTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Receive screen — waiting for incoming files'),
     );
   }
 }
