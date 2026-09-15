@@ -20,3 +20,30 @@ class WavedropApp extends StatelessWidget {
   }
 }
 
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2, // number of tabs
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('WavaShare'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.upload), text: 'Send'),
+              Tab(icon: Icon(Icons.download), text: 'Receive'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            SendTab(),
+            ReceiveTab(),
+          ],
+        ),
+      ),
+    );
+  }
+}
