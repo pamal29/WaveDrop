@@ -24,7 +24,9 @@ class DiscoveryService {
   Future<void> start() async {
     _socket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4, 
-      discoveryPort
+      discoveryPort,
+      reuseAddress: true,
+      reusePort: true, 
     );
     _socket!.broadcastEnabled = true;
 
@@ -45,7 +47,7 @@ class DiscoveryService {
       final json = jsonDecode(utf8.decode(datagram.data));
       final ip = datagram.address.address;
 
-      if (json['name'] == myName) return; // ignore our own broadcast
+      //if (json['name'] == myName) return; // ignore our own broadcast
 
       final peer = Peer.fromJson(json, ip);
       _peers[ip] = peer;

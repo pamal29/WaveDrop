@@ -4,16 +4,15 @@ import 'services/discovery_service.dart';
 import 'models/peer.dart';
 
 void main() {
-  runApp(const WavaShareApp());
+  runApp(const WavaDropApp());
 }
 
-class WavaShareApp extends StatelessWidget {
-  const WavaShareApp({super.key});
-
+class WavaDropApp extends StatelessWidget {
+  const WavaDropApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WavaShare',
+      title: 'WavaDrop',
       theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
       home: const HomeScreen(),
     );
