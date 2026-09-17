@@ -86,12 +86,14 @@ class SendTab extends StatelessWidget {
 }
 
 class ReceiveTab extends StatelessWidget {
-  const ReceiveTab({super.key});
+  final DiscoveryService discovery;
+  const ReceiveTab({super.key, required this.discovery});
 
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('Receive screen — waiting for incoming files'),
+      child: Text('Visible as "${Platform.localHostname}"\nWaiting for incoming files...',
+            textAlign: TextAlign.center),
     );
   }
 }
