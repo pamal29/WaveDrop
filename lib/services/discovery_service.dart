@@ -22,7 +22,10 @@ class DiscoveryService {
   DiscoveryService({required this.myName, required this.myTcpPort});
 
   Future<void> start() async {
-    _socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, discoveryPort);
+    _socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4, 
+      discoveryPort
+    );
     _socket!.broadcastEnabled = true;
 
     _socket!.listen(_onEvent);
@@ -34,7 +37,7 @@ class DiscoveryService {
   }
 
   void _onEvent(RawSocketEvent event) {
-    if (event != RawSocketEvent.read) return;
+    if (event != RawSocketEvent.read) return; //not a read event
     final datagram = _socket!.receive();
     if (datagram == null) return;
 

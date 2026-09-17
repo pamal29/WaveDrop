@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'services/discovery_service.dart';
+import 'models/peer.dart';
 
 void main() {
   runApp(const WavaShareApp());
@@ -49,12 +52,35 @@ class HomeScreen extends StatelessWidget {
 }
 
 class SendTab extends StatelessWidget {
+  final DiscoveryService discovery;
   const SendTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Send screen — pick a file to share'),
+    return StreamBuilder<List<Peer>>(
+      stream: discovery.peersStream,
+      initialData: const [],
+      builder: (context, snapshot) {
+        final peers = snapshot.data ?? [];
+        if (peers.isEmpty) {
+          return const Center(child: Text('search for nearby devices'));
+        }
+
+        return ListView.builder(
+          itemCount: peers.length,
+          itemBuilder: (context, index) {
+            final peer = peers[index];
+            return ListTile(
+              leading: const Icon(Icons.devices),
+              title: Text(peer.name),
+              subtitle: Text(peer.ip),
+              onTap: (){
+                // Handle peer selection
+              },
+            );
+          }
+        );
+      }
     );
   }
 }
