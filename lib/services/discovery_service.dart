@@ -3,27 +3,23 @@ import 'dart:convert';
 import 'dart:io';
 import '../models/peer.dart';
 
-
 class DiscoveryService {
   static const int discoveryPort = 45678;
-  static const Duration discoveryInterval = Duration(seconds: 2);
+  static const Duration broadcastInterval = Duration(seconds: 2);
   static const Duration peerTimeout = Duration(seconds: 6);
 
   RawDatagramSocket? _socket;
-  Timer? _discoveryTimer;
+  Timer? _broadcastTimer;
   Timer? _cleanupTimer;
 
   final String myName;
   final int myTcpPort;
 
   final Map<String, Peer> _peers = {};
-  final _peerController = StreamController<List<Peer>>.broadcast(); //send notifications when peer list changes
-  Stream<List<Peer>> get peersStream => _peerController.stream; //for outside code read-only stream
+  final _peersController = StreamController<List<Peer>>.broadcast();
+  Stream<List<Peer>> get peersStream => _peersController.stream;
 
-  DiscoveryService({
-    required this.myName, 
-    required this.myTcpPort
-  });
+  DiscoveryService({required this.myName, required this.myTcpPort});
 
   Future<void> start() async {
     _socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, discoveryPort);
@@ -56,4 +52,25 @@ class DiscoveryService {
     }
   }
 
-} 
+  void _sendBroadcast() {
+    final payload = jsonEncode({'name': myName, 'port': myTcpPort});
+    final data = utf8.encode(payload);
+    _socket?.send(data, InternetAddress('255.255.255.255'), discoveryPort);
+  }
+
+  void _removeStalePeers() {
+    final now = DateTime.now();
+    final before = _peers.length;
+    _peers.removeWhere((_, peer) => now.difference(peer.lastSeen) > peerTimeout);
+    if (_peers.length != before) {
+      _peersController.add(_peers.values.toList());
+    }
+  }
+
+  void stop() {
+    _broadcastTimer?.cancel();
+    _cleanupTimer?.cancel();
+    _socket?.close();
+    _peersController.close();
+  }
+}
