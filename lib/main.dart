@@ -14,22 +14,42 @@ class WavaShareApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WavaShare',
-      theme: ThemeData(
-        colorSchemeSeed: Colors.teal,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
       home: const HomeScreen(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final DiscoveryService _discovery;
+
+  @override
+  void initState() {
+    super.initState();
+    _discovery = DiscoveryService(
+      myName: Platform.localHostname,
+      myTcpPort: 45679,
+    );
+    _discovery.start();
+  }
+
+  @override
+  void dispose() {
+    _discovery.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, 
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('WavaShare'),
@@ -40,10 +60,10 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            SendTab(),
-            ReceiveTab(),
+            SendTab(discovery: _discovery),
+            ReceiveTab(discovery: _discovery),
           ],
         ),
       ),
@@ -53,7 +73,7 @@ class HomeScreen extends StatelessWidget {
 
 class SendTab extends StatelessWidget {
   final DiscoveryService discovery;
-  const SendTab({super.key});
+  const SendTab({super.key, required this.discovery});
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +83,8 @@ class SendTab extends StatelessWidget {
       builder: (context, snapshot) {
         final peers = snapshot.data ?? [];
         if (peers.isEmpty) {
-          return const Center(child: Text('search for nearby devices'));
+          return const Center(child: Text('Searching for nearby devices...'));
         }
-
         return ListView.builder(
           itemCount: peers.length,
           itemBuilder: (context, index) {
@@ -74,13 +93,13 @@ class SendTab extends StatelessWidget {
               leading: const Icon(Icons.devices),
               title: Text(peer.name),
               subtitle: Text(peer.ip),
-              onTap: (){
-                // Handle peer selection
+              onTap: () {
+                // TODO: pick a file and send to this peer
               },
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 }
@@ -91,9 +110,9 @@ class ReceiveTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Text('Visible as "${Platform.localHostname}"\nWaiting for incoming files...',
-            textAlign: TextAlign.center),
+          textAlign: TextAlign.center),
     );
   }
 }
