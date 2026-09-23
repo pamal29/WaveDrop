@@ -23,13 +23,12 @@ class DiscoveryService {
 
   Future<void> start() async {
     _socket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4, 
+      InternetAddress.anyIPv4,
       discoveryPort,
       reuseAddress: false,
-      reusePort: false, 
+      reusePort: false,
     );
     _socket!.broadcastEnabled = true;
-
     _socket!.listen(_onEvent);
 
     _broadcastTimer = Timer.periodic(broadcastInterval, (_) => _sendBroadcast());
@@ -38,17 +37,30 @@ class DiscoveryService {
     _sendBroadcast();
   }
 
-  void _onEvent(RawSocketEvent event) {
-    if (event != RawSocketEvent.read) return; //not a read event
+  Set<String>? _localIps;
+  Future<Set<String>> _getLocalIps() async {
+    if (_localIps != null) return _localIps!;
+    final ips = <String>{};
+    for (final iface in await NetworkInterface.list()) {
+      for (final addr in iface.addresses) {
+        ips.add(addr.address);
+      }
+    }
+    _localIps = ips;
+    return ips;
+  }
+
+  void _onEvent(RawSocketEvent event) async {
+    if (event != RawSocketEvent.read) return;
     final datagram = _socket!.receive();
     if (datagram == null) return;
 
+    final ip = datagram.address.address;
+    final localIps = await _getLocalIps();
+    if (localIps.contains(ip)) return; // ignore our own broadcast, any interface
+
     try {
       final json = jsonDecode(utf8.decode(datagram.data));
-      final ip = datagram.address.address;
-
-      if (json['name'] == myName) return; // ignore our own broadcast
-
       final peer = Peer.fromJson(json, ip);
       _peers[ip] = peer;
       _peersController.add(_peers.values.toList());
