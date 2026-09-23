@@ -47,7 +47,7 @@ class DiscoveryService {
       final json = jsonDecode(utf8.decode(datagram.data));
       final ip = datagram.address.address;
 
-      //if (json['name'] == myName) return; // ignore our own broadcast
+      if (json['name'] == myName) return; // ignore our own broadcast
 
       final peer = Peer.fromJson(json, ip);
       _peers[ip] = peer;
