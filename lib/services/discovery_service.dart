@@ -25,8 +25,8 @@ class DiscoveryService {
     _socket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4, 
       discoveryPort,
-      reuseAddress: true,
-      reusePort: true, 
+      reuseAddress: false,
+      reusePort: false, 
     );
     _socket!.broadcastEnabled = true;
 
