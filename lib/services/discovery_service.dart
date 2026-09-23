@@ -38,6 +38,7 @@ class DiscoveryService {
   }
 
   Set<String>? _localIps;
+
   Future<Set<String>> _getLocalIps() async {
     if (_localIps != null) return _localIps!;
     final ips = <String>{};
@@ -57,7 +58,7 @@ class DiscoveryService {
 
     final ip = datagram.address.address;
     final localIps = await _getLocalIps();
-    if (localIps.contains(ip)) return; // ignore our own broadcast, any interface
+    if (localIps.contains(ip)) return; // ignore own broadcast
 
     try {
       final json = jsonDecode(utf8.decode(datagram.data));
@@ -68,6 +69,7 @@ class DiscoveryService {
       // ignore malformed packets
     }
   }
+
 
   void _sendBroadcast() {
     final payload = jsonEncode({'name': myName, 'port': myTcpPort});
