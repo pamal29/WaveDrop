@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     _discovery = DiscoveryService(
-      myName: myName!,
+      myName: myName,
       myTcpPort: 45679,
     );
 
